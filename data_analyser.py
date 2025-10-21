@@ -21,3 +21,9 @@ class Control:
 
     def tables(self):
         pass
+
+filename = "plc"
+con_data = pd.read_excel(os.path.join('data', filename))
+control = Control()
+data = pd.pd.read_excel(os.path.join('data', filename))
+data_analyser = DataAnalyser()
