@@ -22,8 +22,18 @@ class Control:
     def tables(self):
         pass
 
-filename = "plc"
-con_data = pd.read_excel(os.path.join('data', filename))
+class Average:
+    def __init__(self, start_floor, end_floor):
+        self.id = (start_floor, end_floor)
+        self.start_floor = start_floor
+        self.end_floor = end_floor
+
+    def average_value(self):
+        pass
+
+reg_in_filename = "plc"
+con_filename = "plc"
+con_data = pd.read_excel(os.path.join('data', reg_in_filename))
 control = Control()
-data = pd.pd.read_excel(os.path.join('data', filename))
+reg_data = pd.read_excel(os.path.join('data', con_filename))
 data_analyser = DataAnalyser()
