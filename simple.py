@@ -12,7 +12,7 @@ class Analyzer:
 
     def setup(self):
         con_file = "Control_Data.xlsx"
-        reg_file = "Data.xlsx"
+        reg_file = "Data_Collection.xlsx"
         os_path = os.path
         while True:
             user_input = input("B: Both, C: Control, R: Regular ").upper()
@@ -30,10 +30,10 @@ class Analyzer:
         while True:
             user_input = input("E: Elevator, S: Stairs ").upper()
             if user_input == "E":
-                self.elev_stair = 'elev'
+                self.elev_stair = 'Elevator_Times'
                 break
             elif user_input == "S":
-                self.elev_stair = 'stair'
+                self.elev_stair = 'Stair_Times'
                 break
             else:
                 print('Invalid Input')
@@ -56,4 +56,24 @@ class Analyzer:
 
     def get_data(self, elev_stair, start_floor, end_floor):
         for file in self.files:
-            plc = 'x'
+            df = pd.read_excel(file, sheet_name= self.elev_stair, usecols= "A:C")
+            print(df)
+            for index, row in df.iterrows():
+                if row['Start_Floor'] == start_floor and row['End_Floor'] == end_floor:
+                    self.data.append(row['Time_Measured'])
+    
+    def average_time(self):
+        if len(self.data) == 0:
+            print("No data available for the selected criteria.")
+            return None
+        avg_time = sum(self.data) / len(self.data)
+        return avg_time
+    
+if __name__ == "__main__":
+    analyzer = Analyzer()
+    analyzer.setup()
+    analyzer.get_data(analyzer.elev_stair, analyzer.start_floor, analyzer.end_floor)
+    avg_time = analyzer.average_time()
+    if avg_time is not None:
+        print(f'The average time from floor {analyzer.start_floor} to floor {analyzer.end_floor} '
+              f'using {analyzer.elev_stair[:-6].lower()} is: {avg_time:.2f} seconds.')
