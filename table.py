@@ -13,16 +13,20 @@ class Analyzer:
         con_file = "Control_Data.xlsx"
         reg_file = "Data_Collection.xlsx"
         os_path = os.path
+        file_dir = os.path.dirname(os.path.abspath(__file__))
+        os.chdir(file_dir)
+
         while True:
             user_input = input("B: Both, C: Control, R: Regular ").upper()
             if user_input == "B":
-                self.files = [os_path.join('data', con_file), os_path.join('data', reg_file)]
-                break
+                self.files = [os_path.join(con_file), os_path.join(reg_file)]
+                #break break to allow both files to be processed
+                print('Not working yet, do not select Both')
             elif user_input == "C":
-                self.files = [os_path.join('data', con_file)]
+                self.files = [os_path.join(con_file)]
                 break
             elif user_input == "R":
-                self.files = [os_path.join('data', reg_file)]
+                self.files = [os_path.join(reg_file)]
                 break
             else:
                 print('Invalid Input')
@@ -32,7 +36,7 @@ class Analyzer:
                 self.elev_stair = 'Elevator_Times'
                 break
             elif user_input == "S":
-                self.elev_stair = 'Stair_Times'
+                self.elev_stair = 'Stairs_Times'
                 break
             else:
                 print('Invalid Input')
@@ -40,9 +44,10 @@ class Analyzer:
     def get_data(self, elev_stair, start_floor, end_floor):
         for file in self.files:
             df = pd.read_excel(file, sheet_name= self.elev_stair, usecols= "A:C")
-            print(df)
+            #print(df)
             for index, row in df.iterrows():
                 if row['Start_Floor'] == start_floor and row['End_Floor'] == end_floor:
+                    print(row['Time_Measured'])
                     self.data.append(row['Time_Measured'])
         avg = self.average_time()
         self.data = []
@@ -53,7 +58,21 @@ class Analyzer:
         if len(self.data) == 0:
             print("No data available for the selected criteria.")
             return None
-        avg_time = sum(self.data) / len(self.data)
+        # Convert datetime.time objects to seconds
+        seconds_list = []
+        for t in self.data:
+            if hasattr(t, 'hour') and hasattr(t, 'minute') and hasattr(t, 'second'):
+                seconds = t.hour * 3600 + t.minute * 60 + t.second
+                seconds_list.append(seconds)
+            elif isinstance(t, (int, float)):
+                seconds_list.append(t)
+            else:
+                print(f"Warning: Unrecognized time format: {t}")
+        if len(seconds_list) == 0:
+            print("No valid time data to average.")
+            return None
+        avg_time = sum(seconds_list) / len(seconds_list)
+        print(f"Average time (seconds): {avg_time}")
         return avg_time
 
     def make_table(self):
